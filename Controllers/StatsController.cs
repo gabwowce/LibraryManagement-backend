@@ -16,7 +16,7 @@ namespace LibraryManagement.Controllers
                 {
                     Title = "Total Members",
                     Amount = 40689,
-                    StatsIcon = "",
+                    StatsIcon = "../../assets/StatsMini/books2.png",
                     DownOrUpIcon = "../../assets/StatsMini/up.png",
                     DownUpInfo = "8.5% Up from yesterday"
                 },
@@ -24,7 +24,7 @@ namespace LibraryManagement.Controllers
                 {
                     Title = "Total Books",
                     Amount = 10293,
-                    StatsIcon = "",
+                    StatsIcon = "../../assets/StatsMini/group.png",
                     DownOrUpIcon = "../../assets/StatsMini/up.png",
                     DownUpInfo = "1.3% Up from past week"
                 },
@@ -32,7 +32,7 @@ namespace LibraryManagement.Controllers
                 {
                     Title = "Books Loaned Out",
                     Amount = 5573,
-                    StatsIcon = "",
+                    StatsIcon = "../../assets/StatsMini/loan.png",
                     DownOrUpIcon = "../../assets/StatsMini/down.png",
                     DownUpInfo = "4.3% Down from past week"
                 },
@@ -40,7 +40,7 @@ namespace LibraryManagement.Controllers
                 {
                     Title = "Accrued Penalties",
                     Amount = 723,
-                    StatsIcon = "",
+                    StatsIcon = "../../assets/StatsMini/penalties.png",
                     DownOrUpIcon = "../../assets/StatsMini/up.png",
                     DownUpInfo = "1.8% Up from past week"
                 },
