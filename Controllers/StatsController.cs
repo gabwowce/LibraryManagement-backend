@@ -15,34 +15,38 @@ namespace LibraryManagement.Controllers
                  new StatsMiniInfo
                 {
                     Title = "Total Members",
-                    Amount = 40689,
-                    StatsIcon = "../../assets/StatsMini/books2.png",
-                    DownOrUpIcon = "../../assets/StatsMini/up.png",
-                    DownUpInfo = "8.5% Up from yesterday"
+                    Amount = "40,689",
+                    StatsIcon = "/StatsMini/books2.png",
+                    DownOrUpIcon = "/StatsMini/up.png",
+                    Procentage="8.5%",
+                    DownUpInfo = "Up from yesterday"
                 },
                   new StatsMiniInfo
                 {
                     Title = "Total Books",
-                    Amount = 10293,
-                    StatsIcon = "../../assets/StatsMini/group.png",
-                    DownOrUpIcon = "../../assets/StatsMini/up.png",
-                    DownUpInfo = "1.3% Up from past week"
+                    Amount = "10,293",
+                    StatsIcon = "/StatsMini/group.png",
+                    DownOrUpIcon = "/StatsMini/up.png",
+                    Procentage="1.3%",
+                    DownUpInfo = "Up from past week"
                 },
                    new StatsMiniInfo
                 {
                     Title = "Books Loaned Out",
-                    Amount = 5573,
-                    StatsIcon = "../../assets/StatsMini/loan.png",
-                    DownOrUpIcon = "../../assets/StatsMini/down.png",
-                    DownUpInfo = "4.3% Down from past week"
+                    Amount = "5,573",
+                    StatsIcon = "/StatsMini/loan.png",
+                    DownOrUpIcon = "/StatsMini/down.png",
+                    Procentage="4.3%",
+                    DownUpInfo = "Down from past week"
                 },
                    new StatsMiniInfo
                 {
                     Title = "Accrued Penalties",
-                    Amount = 723,
-                    StatsIcon = "../../assets/StatsMini/penalties.png",
-                    DownOrUpIcon = "../../assets/StatsMini/up.png",
-                    DownUpInfo = "1.8% Up from past week"
+                    Amount = "$723",
+                    StatsIcon = "/StatsMini/penalties.png",
+                    DownOrUpIcon = "/StatsMini/up.png",
+                    Procentage="1.8%",
+                    DownUpInfo = "Up from past week"
                 },
             };
 
