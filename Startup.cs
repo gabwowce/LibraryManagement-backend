@@ -14,22 +14,13 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllers();
-        services.AddCors(options =>
-        {
-            options.AddPolicy("AllowAll",
-                builder => builder.AllowAnyOrigin()
-                                  .AllowAnyMethod()
-                                  .AllowAnyHeader());
-        });
-
-
-        // Registruokite visus repozitorijus
+        services.AddLogging(configure => configure.AddConsole());
         services.AddSingleton<IBookRepository>(provider =>
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            return new BookRepository(connectionString);
+            return new BookRepository(connectionString, provider.GetRequiredService<ILogger<BookRepository>>());
         });
+
 
         services.AddSingleton<IMemberRepository>(provider =>
         {
@@ -43,9 +34,16 @@ public class Startup
             return new LoanRepository(connectionString);
         });
 
-        // Registruokite kitus paslaugų tipus
         services.AddControllers();
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll",
+                builder => builder.AllowAnyOrigin()
+                                  .AllowAnyMethod()
+                                  .AllowAnyHeader());
+        });
     }
+
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
@@ -70,4 +68,5 @@ public class Startup
             endpoints.MapControllers();
         });
     }
+
 }

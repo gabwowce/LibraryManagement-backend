@@ -25,6 +25,20 @@ public class BooksController : ControllerBase
         return Ok(book);
     }
 
+    [HttpGet("category/{categoryId}")]
+    public ActionResult<IEnumerable<Book>> GetBooksByCategory(int categoryId)
+    {
+        var books = _bookRepository.GetBooksByCategory(categoryId);
+        return Ok(books);
+    }
+
+    [HttpGet("overdue")]
+    public ActionResult<IEnumerable<OverdueBook>> GetOverdueBooks()
+    {
+        var overdueBooks = _bookRepository.GetOverdueBooks();
+        return Ok(overdueBooks);
+    }
+
     [HttpGet]
     public ActionResult<IEnumerable<Book>> GetAllBooks()
     {
