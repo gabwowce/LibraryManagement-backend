@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using LibraryManagement.Interfaces;
 using LibraryManagement.Models;
+using Serilog;
 
 namespace LibraryManagement.Repositories
 {
@@ -16,26 +17,35 @@ namespace LibraryManagement.Repositories
 
         public Member GetMemberById(int id)
         {
-            using (var connection = new MySqlConnection(_connectionString))
+            try
             {
-                connection.Open();
-                var command = new MySqlCommand("SELECT * FROM Members WHERE MemberID = @id", connection);
-                command.Parameters.AddWithValue("@id", id);
-
-                using (var reader = command.ExecuteReader())
+                using (var connection = new MySqlConnection(_connectionString))
                 {
-                    if (reader.Read())
+                    connection.Open();
+                    var command = new MySqlCommand("SELECT * FROM Members WHERE MemberID = @id", connection);
+                    command.Parameters.AddWithValue("@id", id);
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        return new Member
+                        if (reader.Read())
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("MemberID")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Surname = reader.GetString(reader.GetOrdinal("Surname")),
-                            DateOfBirth = reader.GetDateTime(reader.GetOrdinal("DateOfBirth"))
-                        };
+                            return new Member
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("MemberID")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Surname = reader.GetString(reader.GetOrdinal("Surname")),
+                                DateOfBirth = reader.GetDateTime(reader.GetOrdinal("DateOfBirth"))
+                            };
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Log.Error($"-------->Error in GetMemberById: {ex.Message}");
+                throw;
+            }
+
             return null;
         }
 
@@ -43,25 +53,34 @@ namespace LibraryManagement.Repositories
         {
             var members = new List<Member>();
 
-            using (var connection = new MySqlConnection(_connectionString))
+            try
             {
-                connection.Open();
-                var command = new MySqlCommand("SELECT * FROM Members", connection);
-
-                using (var reader = command.ExecuteReader())
+                using (var connection = new MySqlConnection(_connectionString))
                 {
-                    while (reader.Read())
+                    connection.Open();
+                    var command = new MySqlCommand("SELECT * FROM Members", connection);
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        members.Add(new Member
+                        while (reader.Read())
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("MemberID")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Surname = reader.GetString(reader.GetOrdinal("Surname")),
-                            DateOfBirth = reader.GetDateTime(reader.GetOrdinal("DateOfBirth"))
-                        });
+                            members.Add(new Member
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("MemberID")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Surname = reader.GetString(reader.GetOrdinal("Surname")),
+                                DateOfBirth = reader.GetDateTime(reader.GetOrdinal("DateOfBirth"))
+                            });
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Log.Error($"-------->Error in GetAllMembers: {ex.Message}");
+                throw;
+            }
+
             return members;
         }
     }

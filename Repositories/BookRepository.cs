@@ -4,18 +4,18 @@ using MySql.Data.MySqlClient;
 using LibraryManagement.Interfaces;
 using LibraryManagement.Models;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace LibraryManagement.Repositories
 {
     public class BookRepository : IBookRepository
     {
         private readonly string _connectionString;
-        private readonly ILogger<BookRepository> _logger;
 
-        public BookRepository(string connectionString, ILogger<BookRepository> logger)
+        public BookRepository(string connectionString)
         {
             _connectionString = connectionString;
-            _logger = logger;
+            
         }
 
         public Book GetBookById(int id)
@@ -47,7 +47,7 @@ namespace LibraryManagement.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"-------->Error in GetBookById: {ex.Message}");
+                Log.Error($"-------->Error in GetBookById: {ex.Message}");
                 throw; // Throw the exception to return a 500 Internal Server Error in the API
             }
 
@@ -85,7 +85,7 @@ namespace LibraryManagement.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"-------->Error in GetAllBooks: {ex.Message}");
+                Log.Error($"-------->Error in GetAllBooks: {ex.Message}");
                 throw;
             }
 
@@ -123,7 +123,7 @@ namespace LibraryManagement.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"-------->Error in GetBooksByCategory: {ex.Message}");
+                Log.Error($"-------->Error in GetBooksByCategory: {ex.Message}");
                 throw;
             }
 
@@ -136,12 +136,12 @@ namespace LibraryManagement.Repositories
 
             try
             {
-                _logger.LogInformation("Connecting to database...");
+                Log.Error("Connecting to database...");
 
                 using (var connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
-                    _logger.LogInformation("Database connection established.");
+                   
                     var command = new MySqlCommand(@"SELECT b.BookID, b.Name AS BookName, b.Author, m.Name AS MemberName, m.Surname, l.DateOfLoan, l.EndDate 
 FROM books b 
 JOIN loans l ON b.BookID = l.BookID 
@@ -173,7 +173,7 @@ AND l.EndDate <= CURDATE() - INTERVAL 1 DAY;", connection);
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"-------->Error in GetOverdueBooks: {ex.Message}");
+                Log.Error($"-------->Error in GetOverdueBooks: {ex.Message}");
                 throw;
             }
 
@@ -198,7 +198,7 @@ AND l.EndDate <= CURDATE() - INTERVAL 1 DAY;", connection);
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"-------->Error in IsBookLoaned: {ex.Message}");
+                Log.Error($"-------->Error in IsBookLoaned: {ex.Message}");
                 throw;
             }
         }

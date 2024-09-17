@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using LibraryManagement.Interfaces;
 using LibraryManagement.Repositories;
 
+
 public class Startup
 {
     public IConfiguration Configuration { get; }
@@ -14,13 +15,18 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddLogging(configure => configure.AddConsole());
+        services.AddLogging(configure =>
+        {
+            configure.AddConsole();
+            configure.AddFile("logs/LMA-{Date}.txt"); // Configure file logging
+            configure.SetMinimumLevel(LogLevel.Debug); // Ensure Debug level logs are captured
+        });
+
         services.AddSingleton<IBookRepository>(provider =>
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            return new BookRepository(connectionString, provider.GetRequiredService<ILogger<BookRepository>>());
+            return new BookRepository(connectionString);
         });
-
 
         services.AddSingleton<IMemberRepository>(provider =>
         {
@@ -43,7 +49,6 @@ public class Startup
                                   .AllowAnyHeader());
         });
     }
-
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
@@ -68,5 +73,4 @@ public class Startup
             endpoints.MapControllers();
         });
     }
-
 }

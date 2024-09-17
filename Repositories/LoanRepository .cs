@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using LibraryManagement.Interfaces;
 using LibraryManagement.Models;
+using Serilog;
 
 namespace LibraryManagement.Repositories
 {
@@ -16,28 +17,38 @@ namespace LibraryManagement.Repositories
 
         public Loan GetLoanById(int id)
         {
-            using (var connection = new MySqlConnection(_connectionString))
-            {
-                connection.Open();
-                var command = new MySqlCommand("SELECT * FROM Loans WHERE LoanID = @id", connection);
-                command.Parameters.AddWithValue("@id", id);
 
-                using (var reader = command.ExecuteReader())
+            try
+            {
+                using (var connection = new MySqlConnection(_connectionString))
                 {
-                    if (reader.Read())
+                    connection.Open();
+                    var command = new MySqlCommand("SELECT * FROM Loans WHERE LoanID = @id", connection);
+                    command.Parameters.AddWithValue("@id", id);
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        return new Loan
+                        if (reader.Read())
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("LoanID")),
-                            MemberId = reader.GetInt32(reader.GetOrdinal("MemberID")),
-                            BookId = reader.GetInt32(reader.GetOrdinal("BookID")),
-                            DateOfLoan = reader.GetDateTime(reader.GetOrdinal("DateOfLoan")),
-                            EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
-                            Status = reader.GetString(reader.GetOrdinal("Status"))
-                        };
+                            return new Loan
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("LoanID")),
+                                MemberId = reader.GetInt32(reader.GetOrdinal("MemberID")),
+                                BookId = reader.GetInt32(reader.GetOrdinal("BookID")),
+                                DateOfLoan = reader.GetDateTime(reader.GetOrdinal("DateOfLoan")),
+                                EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
+                                Status = reader.GetString(reader.GetOrdinal("Status"))
+                            };
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Log.Error($"-------->Error in GetLoanById: {ex.Message}");
+                throw;
+            }
+
             return null;
         }
 
@@ -45,62 +56,87 @@ namespace LibraryManagement.Repositories
         {
             var loans = new List<Loan>();
 
-            using (var connection = new MySqlConnection(_connectionString))
+            try
             {
-                connection.Open();
-                var command = new MySqlCommand("SELECT * FROM Loans", connection);
-
-                using (var reader = command.ExecuteReader())
+                using (var connection = new MySqlConnection(_connectionString))
                 {
-                    while (reader.Read())
+                    connection.Open();
+                    var command = new MySqlCommand("SELECT * FROM Loans", connection);
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        loans.Add(new Loan
+                        while (reader.Read())
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("LoanID")),
-                            MemberId = reader.GetInt32(reader.GetOrdinal("MemberID")),
-                            BookId = reader.GetInt32(reader.GetOrdinal("BookID")),
-                            DateOfLoan = reader.GetDateTime(reader.GetOrdinal("DateOfLoan")),
-                            EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
-                            Status = reader.GetString(reader.GetOrdinal("Status"))
-                        });
+                            loans.Add(new Loan
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("LoanID")),
+                                MemberId = reader.GetInt32(reader.GetOrdinal("MemberID")),
+                                BookId = reader.GetInt32(reader.GetOrdinal("BookID")),
+                                DateOfLoan = reader.GetDateTime(reader.GetOrdinal("DateOfLoan")),
+                                EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
+                                Status = reader.GetString(reader.GetOrdinal("Status"))
+                            });
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"-------->Error in GetAllLoans: {ex.Message}");
+                throw;
             }
             return loans;
         }
 
         public void AddLoan(Loan loan, DateTime? customStartDate = null)
         {
-            using var connection = new MySqlConnection(_connectionString);
-            connection.Open();
+            try
+            {
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
 
-            using var command = new MySqlCommand(@"
+                using var command = new MySqlCommand(@"
                 INSERT INTO loans (MemberID, BookID, DateOfLoan, EndDate, Status) 
                 VALUES (@MemberId, @BookId, @DateOfLoan, @EndDate, @Status)", connection);
 
-            command.Parameters.AddWithValue("@MemberId", loan.MemberId);
-            command.Parameters.AddWithValue("@BookId", loan.BookId);
-            command.Parameters.AddWithValue("@DateOfLoan", customStartDate ?? DateTime.Now);
-            command.Parameters.AddWithValue("@EndDate", (customStartDate ?? DateTime.Now).AddMonths(1));
-            command.Parameters.AddWithValue("@Status", loan.Status);
+                command.Parameters.AddWithValue("@MemberId", loan.MemberId);
+                command.Parameters.AddWithValue("@BookId", loan.BookId);
+                command.Parameters.AddWithValue("@DateOfLoan", customStartDate ?? DateTime.Now);
+                command.Parameters.AddWithValue("@EndDate", (customStartDate ?? DateTime.Now).AddMonths(1));
+                command.Parameters.AddWithValue("@Status", loan.Status);
 
-            command.ExecuteNonQuery();
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"-------->Error in AddLoan: {ex.Message}");
+                throw;
+            }
+
         }
 
         public void UpdateLoanStatus(int loanId, string newStatus)
         {
-            using var connection = new MySqlConnection(_connectionString);
-            connection.Open();
+            try
+            {
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
 
-            using var command = new MySqlCommand(@"
+                using var command = new MySqlCommand(@"
                 UPDATE loans
                 SET Status = @Status
                 WHERE LoanID = @LoanId", connection);
 
-            command.Parameters.AddWithValue("@Status", newStatus);
-            command.Parameters.AddWithValue("@LoanId", loanId);
+                command.Parameters.AddWithValue("@Status", newStatus);
+                command.Parameters.AddWithValue("@LoanId", loanId);
 
-            command.ExecuteNonQuery();
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"-------->Error in UpdateLoanStatus: {ex.Message}");
+                throw;
+            }
         }
 
     }

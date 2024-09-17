@@ -2,6 +2,7 @@
 using LibraryManagement.Enums;
 using System;
 using System.Collections.Generic;
+using Serilog;
 
 namespace LibraryManagement.Helpers
 {
@@ -13,20 +14,27 @@ namespace LibraryManagement.Helpers
         {
             var loanDataList = new List<LoanData>();
 
-            foreach (Year year in Enum.GetValues(typeof(Year)))
+            try
             {
-                if ((int)year < startYear || (int)year > endYear)
-                    continue;
-
-                foreach (Month month in Enum.GetValues(typeof(Month)))
+                foreach (Year year in Enum.GetValues(typeof(Year)))
                 {
-                    loanDataList.Add(new LoanData
+                    if ((int)year < startYear || (int)year > endYear)
+                        continue;
+
+                    foreach (Month month in Enum.GetValues(typeof(Month)))
                     {
-                        Month = month,
-                        Year = year,
-                        Loans = random.Next(20, 120) 
-                    });
+                        loanDataList.Add(new LoanData
+                        {
+                            Month = month,
+                            Year = year,
+                            Loans = random.Next(20, 120)
+                        });
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"-------->An error occurred (DataGenerator): {ex.Message}");
             }
 
             return loanDataList;
