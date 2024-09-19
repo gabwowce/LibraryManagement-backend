@@ -163,7 +163,7 @@ namespace LibraryManagement.Repositories
                 {
                     connection.Open();
                     var command = new MySqlCommand(@"
-                        SELECT b.BookID, b.Name AS BookName, b.Author, m.Name AS MemberName, m.Surname, l.DateOfLoan, l.EndDate 
+                        SELECT b.BookID, b.Name AS BookName, b.Author, m.Name AS MemberName, m.Surname, l.DateOfLoan, l.EndDate, l.LoanID 
                         FROM Books b 
                         JOIN Loans l ON b.BookID = l.BookID 
                         JOIN Members m ON l.MemberID = m.MemberID
@@ -181,7 +181,7 @@ namespace LibraryManagement.Repositories
 
                             overdueBooks.Add(new OverdueBook
                             {
-                                Id = reader.GetInt32(reader.GetOrdinal("BookID")),
+                                Id = reader.GetInt32(reader.GetOrdinal("LoanID")),
                                 Title = reader.GetString(reader.GetOrdinal("BookName")),
                                 Author = reader.GetString(reader.GetOrdinal("Author")),
                                 BorrowerName = reader.GetString(reader.GetOrdinal("MemberName")) + " " +
@@ -201,6 +201,60 @@ namespace LibraryManagement.Repositories
             }
 
             return overdueBooks;
+        }
+
+        public OverdueBook GetOverdueBookById(int loanId)
+        {
+            
+
+            try
+            {
+                Log.Error("Connecting to database...");
+
+                using (var connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    var command = new MySqlCommand(@"
+                        SELECT b.BookID, b.Name AS BookName, b.Author, m.Name AS MemberName, m.Surname, l.DateOfLoan, l.EndDate, l.LoanID 
+                        FROM Books b 
+                        JOIN Loans l ON b.BookID = l.BookID 
+                        JOIN Members m ON l.MemberID = m.MemberID
+                        WHERE l.Status = 'Active' 
+                        AND l.EndDate <= CURDATE() - INTERVAL 1 DAY
+                        AND l.loanId = @loanId;", connection);
+                    command.Parameters.AddWithValue("@loanId", loanId);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var loanStartDate = reader.GetDateTime(reader.GetOrdinal("DateOfLoan")).ToString("yyyy-MM-dd");
+                            var endDate = reader.GetDateTime(reader.GetOrdinal("EndDate")).ToString("yyyy-MM-dd");
+                            var parsedEndDate = DateTime.Parse(endDate);
+                            var daysOverdue = (DateTime.Now - parsedEndDate).Days;
+
+                            return new OverdueBook
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("LoanID")),
+                                Title = reader.GetString(reader.GetOrdinal("BookName")),
+                                Author = reader.GetString(reader.GetOrdinal("Author")),
+                                BorrowerName = reader.GetString(reader.GetOrdinal("MemberName")) + " " +
+                                               reader.GetString(reader.GetOrdinal("Surname")),
+                                LoanStartDate = loanStartDate,
+                                LoanEndDate = endDate,
+                                DaysOverdue = daysOverdue > 0 ? daysOverdue : 0
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"-------->Error in GetOverdueBooks: {ex.Message}");
+                throw;
+            }
+
+            return null;
         }
 
         public bool IsBookLoaned(int bookId)

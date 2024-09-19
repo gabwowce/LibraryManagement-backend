@@ -38,6 +38,12 @@ public class BooksController : ControllerBase
         var overdueBooks = _bookRepository.GetOverdueBooks();
         return Ok(overdueBooks);
     }
+    [HttpGet("overdue/{loanId}")]
+    public ActionResult<OverdueBook> GetOverdueBookById(int loanId)
+    {
+        var overdueBooks = _bookRepository.GetOverdueBookById(loanId);
+        return Ok(overdueBooks);
+    }
 
     [HttpGet]
     public ActionResult<IEnumerable<Book>> GetAllBooks()

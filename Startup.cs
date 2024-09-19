@@ -8,6 +8,7 @@ public class Startup
 {
     public IConfiguration Configuration { get; }
 
+
     public Startup(IConfiguration configuration)
     {
         Configuration = configuration;
@@ -15,6 +16,7 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+
         services.AddLogging(configure =>
         {
             configure.AddConsole();
@@ -22,23 +24,19 @@ public class Startup
             configure.SetMinimumLevel(LogLevel.Debug); // Ensure Debug level logs are captured
         });
 
-        services.AddSingleton<IBookRepository>(provider =>
-        {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            return new BookRepository(connectionString);
-        });
+        var connectionString = Configuration.GetConnectionString("DefaultConnection");
+
+        services.AddSingleton<ILoanRepository>(provider =>
+         new LoanRepository(connectionString));
 
         services.AddSingleton<IMemberRepository>(provider =>
         {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            return new MemberRepository(connectionString);
+            var loanRepository = provider.GetRequiredService<ILoanRepository>();
+            return new MemberRepository(connectionString, loanRepository);
         });
 
-        services.AddSingleton<ILoanRepository>(provider =>
-        {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            return new LoanRepository(connectionString);
-        });
+        services.AddSingleton<IBookRepository>(provider =>
+            new BookRepository(connectionString));
 
         services.AddControllers();
         services.AddCors(options =>

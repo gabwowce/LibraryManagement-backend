@@ -139,5 +139,48 @@ namespace LibraryManagement.Repositories
             }
         }
 
+
+
+        public IEnumerable<Loan> GetLoansByMemberId(int memberId)
+        {
+            var loans = new List<Loan>();
+
+            try
+            {
+                using (var connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    var command = new MySqlCommand(@"
+                        SELECT * FROM Loans 
+                        WHERE MemberID = @memberId
+                    ", connection);
+                    command.Parameters.AddWithValue("@memberId", memberId);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            loans.Add(new Loan
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("LoanID")),
+                                MemberId = reader.GetInt32(reader.GetOrdinal("MemberID")),
+                                BookId = reader.GetInt32(reader.GetOrdinal("BookID")),
+                                DateOfLoan = reader.GetDateTime(reader.GetOrdinal("DateOfLoan")),
+                                EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
+                                Status = reader.GetString(reader.GetOrdinal("Status"))
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"--------> Error in GetLoansByMemberId: {ex.Message}");
+                throw;
+            }
+
+            return loans;
+        }
+
     }
 }
