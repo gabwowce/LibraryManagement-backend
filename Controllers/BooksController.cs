@@ -51,4 +51,18 @@ public class BooksController : ControllerBase
         var books = _bookRepository.GetAllBooks();
         return Ok(books);
     }
+
+    [HttpPut("overdue/{loanId}")]
+    public IActionResult EditOverdueBook(int loanId, [FromQuery] DateTime? newEndDate, [FromQuery] bool markAsReturned)
+    {
+        var result = _bookRepository.EditOverdueBook(loanId, newEndDate, markAsReturned);
+
+        if (!result)
+        {
+            return NotFound();
+        }
+
+        return Ok("Overdue book updated successfully.");
+    }
+
 }

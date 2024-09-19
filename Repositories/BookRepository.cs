@@ -205,28 +205,26 @@ namespace LibraryManagement.Repositories
 
         public OverdueBook GetOverdueBookById(int loanId)
         {
-            
-
             try
             {
-                Log.Error("Connecting to database...");
+                Log.Information("Connecting to database to get overdue book details...");
 
                 using (var connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
                     var command = new MySqlCommand(@"
-                        SELECT b.BookID, b.Name AS BookName, b.Author, m.Name AS MemberName, m.Surname, l.DateOfLoan, l.EndDate, l.LoanID 
-                        FROM Books b 
-                        JOIN Loans l ON b.BookID = l.BookID 
-                        JOIN Members m ON l.MemberID = m.MemberID
-                        WHERE l.Status = 'Active' 
-                        AND l.EndDate <= CURDATE() - INTERVAL 1 DAY
-                        AND l.loanId = @loanId;", connection);
+                SELECT b.BookID, b.Name AS BookName, b.Author, m.Name AS MemberName, m.Surname, l.DateOfLoan, l.EndDate, l.LoanID, l.Status AS Status 
+                FROM Books b 
+                JOIN Loans l ON b.BookID = l.BookID 
+                JOIN Members m ON l.MemberID = m.MemberID
+                WHERE l.Status = 'Active' 
+                AND l.EndDate <= CURDATE() - INTERVAL 1 DAY
+                AND l.LoanID = @loanId;", connection);
                     command.Parameters.AddWithValue("@loanId", loanId);
 
                     using (var reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
+                        if (reader.Read())
                         {
                             var loanStartDate = reader.GetDateTime(reader.GetOrdinal("DateOfLoan")).ToString("yyyy-MM-dd");
                             var endDate = reader.GetDateTime(reader.GetOrdinal("EndDate")).ToString("yyyy-MM-dd");
@@ -242,20 +240,80 @@ namespace LibraryManagement.Repositories
                                                reader.GetString(reader.GetOrdinal("Surname")),
                                 LoanStartDate = loanStartDate,
                                 LoanEndDate = endDate,
+                                Status = reader.GetString(reader.GetOrdinal("Status")),
                                 DaysOverdue = daysOverdue > 0 ? daysOverdue : 0
                             };
+                        }
+                        else
+                        {
+                            Log.Warning($"No overdue book found with LoanID: {loanId}");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Log.Error($"-------->Error in GetOverdueBooks: {ex.Message}");
+                Log.Error($"-------->Error in GetOverdueBookById: {ex.Message}");
                 throw;
             }
 
             return null;
         }
+
+
+
+
+        public bool EditOverdueBook(int loanId, DateTime? newEndDate = null, bool markAsReturned = false)
+        {
+            try
+            {
+                Log.Information("Connecting to database...");
+
+                using (var connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    // Build SQL query dynamically depending on what we are editing
+                    string query = "UPDATE Loans SET ";
+
+                    if (newEndDate.HasValue)
+                    {
+                        query += "EndDate = @newEndDate ";
+                    }
+
+                    if (markAsReturned)
+                    {
+                        if (newEndDate.HasValue)
+                        {
+                            query += ", ";
+                        }
+                        query += "Status = 'Returned' ";
+                    }
+
+                    query += "WHERE LoanID = @loanId;";
+
+                    var command = new MySqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@loanId", loanId);
+
+                    if (newEndDate.HasValue)
+                    {
+                        command.Parameters.AddWithValue("@newEndDate", newEndDate.Value.ToString("yyyy-MM-dd"));
+                    }
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    Log.Information($"Successfully updated {rowsAffected} record(s).");
+
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"-------->Error in EditOverdueBook: {ex.Message}");
+                throw;
+            }
+        }
+
+
 
         public bool IsBookLoaned(int bookId)
         {

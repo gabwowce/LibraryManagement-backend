@@ -10,5 +10,6 @@ namespace LibraryManagement.Interfaces
         IEnumerable<Book> GetBooksByCategory(int categoryId);
         IEnumerable<OverdueBook> GetOverdueBooks();
         bool IsBookLoaned(int bookId);
+        bool EditOverdueBook(int loanId, DateTime? newEndDate = null, bool markAsReturned = false);
     }
 }

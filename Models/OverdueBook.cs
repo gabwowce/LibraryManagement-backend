@@ -8,5 +8,6 @@
         public string LoanStartDate { get; set; }
         public string LoanEndDate { get; set; }
         public int DaysOverdue { get; set; }
+        public string Status { get; set; }
     }
 }
