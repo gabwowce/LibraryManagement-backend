@@ -53,9 +53,9 @@ public class BooksController : ControllerBase
     }
 
     [HttpPut("overdue/{loanId}")]
-    public IActionResult EditOverdueBook(int loanId, [FromQuery] DateTime? newEndDate, [FromQuery] bool markAsReturned)
+    public IActionResult EditOverdueBook(int loanId, [FromBody] OverdueBookUpdateDto updateDto)
     {
-        var result = _bookRepository.EditOverdueBook(loanId, newEndDate, markAsReturned);
+        var result = _bookRepository.EditOverdueBook(loanId, updateDto.newEndDate, updateDto.status);
 
         if (!result)
         {
@@ -64,5 +64,7 @@ public class BooksController : ControllerBase
 
         return Ok("Overdue book updated successfully.");
     }
+
+
 
 }

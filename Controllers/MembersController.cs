@@ -31,4 +31,44 @@ public class MembersController : ControllerBase
         var members = _memberRepository.GetAllMembers();
         return Ok(members);
     }
+
+    [HttpPut("member/{id}")]
+    public IActionResult UpdateMember(int id, [FromBody] MemberDto updatedMember)
+    {
+        if (updatedMember == null)
+        {
+            return BadRequest("Invalid member data.");
+        }
+
+        var result = _memberRepository.UpdateMember(updatedMember, id);
+
+        if (!result)
+        {
+            return StatusCode(500, "An error occurred while updating the member.");
+        }
+
+        return Ok("Member updated successfully.");
+    }
+
+
+    [HttpPost("member")]
+    public IActionResult CreateMember([FromBody] MemberDto newMember)
+    {
+        if (newMember == null)
+        {
+            return BadRequest("Invalid member data.");
+        }
+
+        var result = _memberRepository.CreateMember(newMember);
+
+        if (!result)
+        {
+            return StatusCode(500, "An error occurred while creating the member.");
+        }
+
+        return Ok("Member created successfully.");
+    }
+
+
+
 }

@@ -92,6 +92,69 @@ namespace LibraryManagement.Repositories
             return members;
         }
 
+        public bool UpdateMember(MemberDto updatedMember, int id)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    var command = new MySqlCommand(@"UPDATE Members SET 
+                Name = @name, 
+                Surname = @surname, 
+                DateOfBirth = @dateOfBirth, 
+                phone_number = @phoneNumber 
+                WHERE MemberID = @id", connection);
+
+                    command.Parameters.AddWithValue("@name", updatedMember.Name);
+                    command.Parameters.AddWithValue("@surname", updatedMember.Surname);
+                    command.Parameters.AddWithValue("@dateOfBirth", updatedMember.DateOfBirth);
+                    command.Parameters.AddWithValue("@phoneNumber", updatedMember.PhoneNumber);
+                    command.Parameters.AddWithValue("@id", id);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"--------> Error in UpdateMember: {ex.Message}");
+                throw;
+            }
+        }
+
+
+        public bool CreateMember(MemberDto newMember)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    var command = new MySqlCommand(@"INSERT INTO Members (Name, Surname, DateOfBirth, phone_number) 
+                VALUES (@name, @surname, @dateOfBirth, @phoneNumber)", connection);
+
+                    command.Parameters.AddWithValue("@name", newMember.Name);
+                    command.Parameters.AddWithValue("@surname", newMember.Surname);
+                    command.Parameters.AddWithValue("@dateOfBirth", newMember.DateOfBirth);
+                    command.Parameters.AddWithValue("@phoneNumber", newMember.PhoneNumber);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"--------> Error in CreateMember: {ex.Message}");
+                throw;
+            }
+        }
+
+
+
+
 
     }
 }

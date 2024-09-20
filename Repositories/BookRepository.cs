@@ -263,8 +263,13 @@ namespace LibraryManagement.Repositories
 
 
 
-        public bool EditOverdueBook(int loanId, DateTime? newEndDate = null, bool markAsReturned = false)
+        public bool EditOverdueBook(int loanId, string newEndDate = null, string status = null)
         {
+            if (string.IsNullOrEmpty(newEndDate) && string.IsNullOrEmpty(status))
+            {
+                return false; // Niekas nepakeista
+            }
+
             try
             {
                 Log.Information("Connecting to database...");
@@ -273,21 +278,23 @@ namespace LibraryManagement.Repositories
                 {
                     connection.Open();
 
-                    // Build SQL query dynamically depending on what we are editing
                     string query = "UPDATE Loans SET ";
 
-                    if (newEndDate.HasValue)
+                    bool firstField = true;
+
+                    if (!string.IsNullOrEmpty(newEndDate))
                     {
                         query += "EndDate = @newEndDate ";
+                        firstField = false;
                     }
 
-                    if (markAsReturned)
+                    if (!string.IsNullOrEmpty(status))
                     {
-                        if (newEndDate.HasValue)
+                        if (!firstField)
                         {
                             query += ", ";
                         }
-                        query += "Status = 'Returned' ";
+                        query += "Status = @status ";
                     }
 
                     query += "WHERE LoanID = @loanId;";
@@ -295,9 +302,14 @@ namespace LibraryManagement.Repositories
                     var command = new MySqlCommand(query, connection);
                     command.Parameters.AddWithValue("@loanId", loanId);
 
-                    if (newEndDate.HasValue)
+                    if (!string.IsNullOrEmpty(newEndDate))
                     {
-                        command.Parameters.AddWithValue("@newEndDate", newEndDate.Value.ToString("yyyy-MM-dd"));
+                        command.Parameters.AddWithValue("@newEndDate", newEndDate);
+                    }
+
+                    if (!string.IsNullOrEmpty(status))
+                    {
+                        command.Parameters.AddWithValue("@status", status);
                     }
 
                     int rowsAffected = command.ExecuteNonQuery();
@@ -312,6 +324,10 @@ namespace LibraryManagement.Repositories
                 throw;
             }
         }
+
+
+
+
 
 
 

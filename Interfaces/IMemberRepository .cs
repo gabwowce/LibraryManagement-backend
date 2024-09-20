@@ -7,5 +7,7 @@ namespace LibraryManagement.Interfaces
     {
         Member GetMemberById(int id);
         IEnumerable<Member> GetAllMembers();
+        bool UpdateMember(MemberDto member, int id);
+        bool CreateMember(MemberDto member);
     }
 }
