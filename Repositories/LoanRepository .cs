@@ -3,6 +3,7 @@ using MySql.Data.MySqlClient;
 using LibraryManagement.Interfaces;
 using LibraryManagement.Models;
 using Serilog;
+using Org.BouncyCastle.Utilities;
 
 namespace LibraryManagement.Repositories
 {
@@ -95,14 +96,17 @@ namespace LibraryManagement.Repositories
                 using var connection = new MySqlConnection(_connectionString);
                 connection.Open();
 
+                var startDate = customStartDate ?? DateTime.Now;
+                var endDate = startDate.AddMonths(1);
+
                 using var command = new MySqlCommand(@"
                 INSERT INTO loans (MemberID, BookID, DateOfLoan, EndDate, Status) 
                 VALUES (@MemberId, @BookId, @DateOfLoan, @EndDate, @Status)", connection);
 
                 command.Parameters.AddWithValue("@MemberId", loan.MemberId);
                 command.Parameters.AddWithValue("@BookId", loan.BookId);
-                command.Parameters.AddWithValue("@DateOfLoan", customStartDate ?? DateTime.Now);
-                command.Parameters.AddWithValue("@EndDate", (customStartDate ?? DateTime.Now).AddMonths(1));
+                command.Parameters.AddWithValue("@DateOfLoan", startDate); 
+                command.Parameters.AddWithValue("@EndDate", endDate); 
                 command.Parameters.AddWithValue("@Status", loan.Status);
 
                 command.ExecuteNonQuery();
@@ -181,6 +185,7 @@ namespace LibraryManagement.Repositories
 
             return loans;
         }
+
 
     }
 }

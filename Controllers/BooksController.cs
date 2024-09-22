@@ -2,6 +2,7 @@
 using LibraryManagement.Interfaces;
 using LibraryManagement.Models;
 using System.Collections.Generic;
+using LibraryManagement.Repositories;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -63,6 +64,24 @@ public class BooksController : ControllerBase
         }
 
         return Ok("Overdue book updated successfully.");
+    }
+
+    [HttpPost("book")]
+    public IActionResult UploadNewBook([FromBody] BookDto newBook)
+    {
+        if (newBook == null)
+        {
+            return BadRequest("Invalid book data.");
+        }
+
+        var result = _bookRepository.UploadNewBook(newBook);
+
+        if (!result)
+        {
+            return StatusCode(500, "An error occurred while creating the book.");
+        }
+
+        return Ok("Book created successfully.");
     }
 
 

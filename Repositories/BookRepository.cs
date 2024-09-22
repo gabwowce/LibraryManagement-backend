@@ -5,6 +5,7 @@ using LibraryManagement.Interfaces;
 using LibraryManagement.Models;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using System.Net;
 
 namespace LibraryManagement.Repositories
 {
@@ -353,5 +354,44 @@ namespace LibraryManagement.Repositories
                 throw;
             }
         }
+
+
+
+
+        public bool UploadNewBook(BookDto newBook)
+        {
+            try
+            {
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
+
+                using var command = new MySqlCommand(@"
+                   INSERT INTO books (Name, Author, YearOfRelease, CategoryID, ImagePath, quantity)
+                   VALUES (@Name, @Author, @YearOfRelease, @CategoryID, @ImagePath, @quantity);"
+
+                , connection);
+
+
+                command.Parameters.AddWithValue("@Name", newBook.Name);
+                command.Parameters.AddWithValue("@Author", newBook.Author);
+                command.Parameters.AddWithValue("@YearOfRelease", newBook.YearOfRelease);
+                command.Parameters.AddWithValue("@CategoryID", newBook.CategoryId);
+                command.Parameters.AddWithValue("@ImagePath", newBook.ImagePath);
+                command.Parameters.AddWithValue("@quantity", newBook.Amount);
+
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected > 0;
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"-------->Error in UploadNewBook: {ex.Message}");
+                throw;
+            }
+        }
+
+
+
+
     }
 }

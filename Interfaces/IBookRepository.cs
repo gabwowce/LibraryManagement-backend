@@ -11,5 +11,7 @@ namespace LibraryManagement.Interfaces
         IEnumerable<OverdueBook> GetOverdueBooks();
         bool IsBookLoaned(int bookId);
         bool EditOverdueBook(int loanId, string newEndDate = null, string markAsReturned = null);
+
+        bool UploadNewBook(BookDto newBook);
     }
 }
