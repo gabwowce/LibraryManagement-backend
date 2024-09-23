@@ -9,5 +9,8 @@ namespace LibraryManagement.Interfaces
         IEnumerable<Member> GetAllMembers();
         bool UpdateMember(MemberDto member, int id);
         bool CreateMember(MemberDto member);
+        bool HasActiveLoans(int memberId);
+        bool DeleteMemberById(int memberId);
+
     }
 }

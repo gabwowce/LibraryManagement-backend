@@ -152,6 +152,32 @@ namespace LibraryManagement.Repositories
             }
         }
 
+        public bool HasActiveLoans(int memberId)
+        {
+            // Check if the member has any active loans
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            using var command = new MySqlCommand("SELECT COUNT(*) FROM Loans WHERE MemberID = @memberId", connection);
+            command.Parameters.AddWithValue("@memberId", memberId);
+
+            int count = Convert.ToInt32(command.ExecuteScalar());
+            return count == 0;
+        }
+
+        public bool DeleteMemberById(int memberId)
+        {
+            
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            using var command = new MySqlCommand("DELETE FROM Members WHERE MemberID = @memberId;", connection);
+            command.Parameters.AddWithValue("@memberId", memberId);
+
+            int rowsAffected = command.ExecuteNonQuery();
+            return rowsAffected > 0;
+        }
+
 
 
 

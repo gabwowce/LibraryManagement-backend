@@ -13,5 +13,11 @@ namespace LibraryManagement.Interfaces
         bool EditOverdueBook(int loanId, string newEndDate = null, string markAsReturned = null);
 
         bool UploadNewBook(BookDto newBook);
+        bool EditBook(int bookId, BookDto updatedBook);
+        bool DeleteBookById(int bookId);
+        bool HasActiveLoans(int bookId);
+
+
+
     }
 }

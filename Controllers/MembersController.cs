@@ -69,6 +69,27 @@ public class MembersController : ControllerBase
         return Ok("Member created successfully.");
     }
 
+    [HttpDelete("{memberId}")]
+    public IActionResult DeleteMember(int memberId)
+    {
+        var result = _memberRepository.DeleteMemberById(memberId);
+
+        if (!result)
+        {
+            return BadRequest("Cannot delete the member because they have active loans.");
+        }
+
+        return Ok("Member deleted successfully.");
+    }
+
+    [HttpGet("check-member-loans/{memberId}")]
+    public IActionResult CheckActiveLoans(int memberId)
+    {
+        var hasActiveLoans = _memberRepository.HasActiveLoans(memberId);
+        return Ok(!hasActiveLoans);
+    }
+
+
 
 
 }

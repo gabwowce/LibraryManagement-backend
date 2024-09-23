@@ -390,6 +390,67 @@ namespace LibraryManagement.Repositories
             }
         }
 
+        public bool EditBook(int bookId, BookDto updatedBook)
+        {
+            try
+            {
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
+
+                using var command = new MySqlCommand(@"
+            UPDATE Books 
+            SET Name = IFNULL(NULLIF(@Name, ''), Name),
+                Author = IFNULL(NULLIF(@Author, ''), Author),
+                YearOfRelease = IFNULL(NULLIF(@YearOfRelease, 0), YearOfRelease),
+                CategoryID = IFNULL(NULLIF(@CategoryID, 0), CategoryID),
+                Quantity = IFNULL(NULLIF(@quantity, 0), Quantity)
+            WHERE BookID = @bookId;", connection);
+
+                command.Parameters.AddWithValue("@bookId", bookId);
+                command.Parameters.AddWithValue("@Name", updatedBook.Name);
+                command.Parameters.AddWithValue("@Author", updatedBook.Author);
+                command.Parameters.AddWithValue("@YearOfRelease", updatedBook.YearOfRelease);
+                command.Parameters.AddWithValue("@CategoryID", updatedBook.CategoryId);
+                command.Parameters.AddWithValue("@quantity", updatedBook.Amount);
+
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"-------->Error in EditBook: {ex.Message}");
+                throw;
+            }
+        }
+
+        public bool DeleteBookById(int bookId)
+        {
+            // Proceed with deletion
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            using var command = new MySqlCommand("DELETE FROM Books WHERE BookID = @bookId;", connection);
+            command.Parameters.AddWithValue("@bookId", bookId);
+
+            int rowsAffected = command.ExecuteNonQuery();
+            return rowsAffected > 0;
+        }
+
+
+
+        public bool HasActiveLoans(int bookId)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            using var command = new MySqlCommand("SELECT COUNT(*) FROM Loans WHERE BookID = @bookId", connection);
+            command.Parameters.AddWithValue("@bookId", bookId);
+
+            int count = Convert.ToInt32(command.ExecuteScalar());
+            return count == 0;
+        }
+
+
 
 
 

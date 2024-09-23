@@ -83,6 +83,49 @@ public class BooksController : ControllerBase
 
         return Ok("Book created successfully.");
     }
+    [HttpPut("book/{bookId}")]
+    public IActionResult EditBook(int bookId, [FromBody] BookDto updatedBook)
+    {
+        if (updatedBook == null)
+        {
+            return BadRequest("Invalid book data.");
+        }
+
+        var result = _bookRepository.EditBook(bookId, updatedBook);
+
+        if (!result)
+        {
+            return NotFound("Book not found.");
+        }
+
+        return NoContent(); 
+    }
+
+    [HttpDelete("{bookId}")]
+    public IActionResult DeleteBook(int bookId)
+    {
+        var result = _bookRepository.DeleteBookById(bookId);
+
+        if (!result)
+        {
+            return NotFound("Book not found.");
+        }
+
+        return NoContent(); 
+    }
+
+
+
+    [HttpGet("check-loans/{bookId}")]
+    public IActionResult CheckActiveLoans(int bookId)
+    {
+        var hasActiveLoans = _bookRepository.HasActiveLoans(bookId);
+        return Ok(!hasActiveLoans); 
+    }
+
+
+
+
 
 
 
