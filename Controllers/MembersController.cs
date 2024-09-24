@@ -32,6 +32,13 @@ public class MembersController : ControllerBase
         return Ok(members);
     }
 
+    [HttpGet("admins&managers")]
+    public ActionResult<IEnumerable<Member>> GetAdminAndManagerMembers()
+    {
+        var members = _memberRepository.GetAdminAndManagerMembers();
+        return Ok(members);
+    }
+
     [HttpPut("member/{id}")]
     public IActionResult UpdateMember(int id, [FromBody] MemberDto updatedMember)
     {
@@ -67,6 +74,42 @@ public class MembersController : ControllerBase
         }
 
         return Ok("Member created successfully.");
+    }
+
+    [HttpPost("manager")]
+    public IActionResult CreateManager([FromBody] MemberDto newManager)
+    {
+        if (newManager == null)
+        {
+            return BadRequest("Invalid manager data.");
+        }
+
+        var result = _memberRepository.CreateManager(newManager);
+
+        if (!result)
+        {
+            return StatusCode(500, "An error occurred while creating the manager.");
+        }
+
+        return Ok("Manager created successfully.");
+    }
+
+    [HttpPost("admin")]
+    public IActionResult CreateAdmin([FromBody] MemberDto newAdmin)
+    {
+        if (newAdmin == null)
+        {
+            return BadRequest("Invalid admin data.");
+        }
+
+        var result = _memberRepository.CreateAdmin(newAdmin);
+
+        if (!result)
+        {
+            return StatusCode(500, "An error occurred while creating the admin.");
+        }
+
+        return Ok("Admin created successfully.");
     }
 
     [HttpDelete("{memberId}")]

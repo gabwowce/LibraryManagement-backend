@@ -96,17 +96,18 @@ namespace LibraryManagement.Repositories
                 using var connection = new MySqlConnection(_connectionString);
                 connection.Open();
 
-                var startDate = customStartDate ?? DateTime.Now;
+                var startDate = customStartDate ?? loan.DateOfLoan ?? DateTime.Now; 
+
                 var endDate = startDate.AddMonths(1);
 
                 using var command = new MySqlCommand(@"
-                INSERT INTO loans (MemberID, BookID, DateOfLoan, EndDate, Status) 
-                VALUES (@MemberId, @BookId, @DateOfLoan, @EndDate, @Status)", connection);
+        INSERT INTO loans (MemberID, BookID, DateOfLoan, EndDate, Status) 
+        VALUES (@MemberId, @BookId, @DateOfLoan, @EndDate, @Status)", connection);
 
                 command.Parameters.AddWithValue("@MemberId", loan.MemberId);
                 command.Parameters.AddWithValue("@BookId", loan.BookId);
-                command.Parameters.AddWithValue("@DateOfLoan", startDate); 
-                command.Parameters.AddWithValue("@EndDate", endDate); 
+                command.Parameters.AddWithValue("@DateOfLoan", startDate);
+                command.Parameters.AddWithValue("@EndDate", endDate);
                 command.Parameters.AddWithValue("@Status", loan.Status);
 
                 command.ExecuteNonQuery();
@@ -116,8 +117,9 @@ namespace LibraryManagement.Repositories
                 Log.Error($"-------->Error in AddLoan: {ex.Message}");
                 throw;
             }
-
         }
+
+
 
         public void UpdateLoanStatus(int loanId, string newStatus)
         {
