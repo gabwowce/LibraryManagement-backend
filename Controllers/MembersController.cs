@@ -20,7 +20,7 @@ public class MembersController : ControllerBase
         var member = _memberRepository.GetMemberById(id);
         if (member == null)
         {
-            return NotFound();
+            return NotFound($"Member with ID {id} not found.");
         }
         return Ok(member);
     }
@@ -29,6 +29,10 @@ public class MembersController : ControllerBase
     public ActionResult<IEnumerable<Member>> GetAllMembers()
     {
         var members = _memberRepository.GetAllMembers();
+        if (members == null || !members.Any())
+        {
+            return NotFound("No members found.");
+        }
         return Ok(members);
     }
 
@@ -36,6 +40,10 @@ public class MembersController : ControllerBase
     public ActionResult<IEnumerable<Member>> GetAdminAndManagerMembers()
     {
         var members = _memberRepository.GetAdminAndManagerMembers();
+        if (members == null || !members.Any())
+        {
+            return NotFound("No admin or manager members found.");
+        }
         return Ok(members);
     }
 

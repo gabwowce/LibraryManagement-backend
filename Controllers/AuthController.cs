@@ -1,12 +1,9 @@
 ﻿using LibraryManagement.Services;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using LibraryManagement.Models;
 
-
 namespace LibraryManagement.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -23,13 +20,13 @@ namespace LibraryManagement.Controllers
         {
             if (request == null || string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
             {
-                return BadRequest("Invalid request");
+                return BadRequest("Invalid request. Please provide valid username and password.");
             }
 
             var (token, member) = _authenticationService.Authenticate(request.Username, request.Password);
             if (token == null)
             {
-                return Unauthorized();
+                return Unauthorized("Invalid username or password.");
             }
 
             var userDto = new MemberDto
@@ -39,14 +36,13 @@ namespace LibraryManagement.Controllers
                 Role = member.Role
             };
 
-            return Ok(new { Token = token, User = userDto });
+            return Ok(new { Token = token, User = userDto, Message = "Login successful." });
         }
 
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            return Ok(new { message = "Logged out successfully" });
+            return Ok(new { Message = "Logged out successfully." });
         }
-
     }
 }

@@ -20,7 +20,7 @@ public class LoansController : ControllerBase
         var loan = _loanRepository.GetLoanById(id);
         if (loan == null)
         {
-            return NotFound();
+            return NotFound($"Loan with ID {id} not found.");
         }
         return Ok(loan);
     }
@@ -29,6 +29,10 @@ public class LoansController : ControllerBase
     public ActionResult<IEnumerable<Loan>> GetAllLoans()
     {
         var loans = _loanRepository.GetAllLoans();
+        if (loans == null || !loans.Any())
+        {
+            return NotFound("No loans found.");
+        }
         return Ok(loans);
     }
 

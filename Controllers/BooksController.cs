@@ -21,7 +21,7 @@ public class BooksController : ControllerBase
         var book = _bookRepository.GetBookById(id);
         if (book == null)
         {
-            return NotFound();
+            return NotFound($"Book with ID {id} not found.");
         }
         return Ok(book);
     }
@@ -30,6 +30,10 @@ public class BooksController : ControllerBase
     public ActionResult<IEnumerable<Book>> GetBooksByCategory(int categoryId)
     {
         var books = _bookRepository.GetBooksByCategory(categoryId);
+        if (books == null || !books.Any())
+        {
+            return NotFound($"No books found for category ID {categoryId}.");
+        }
         return Ok(books);
     }
 
@@ -37,34 +41,53 @@ public class BooksController : ControllerBase
     public ActionResult<IEnumerable<OverdueBook>> GetOverdueBooks()
     {
         var overdueBooks = _bookRepository.GetOverdueBooks();
+        if (overdueBooks == null || !overdueBooks.Any())
+        {
+            return NotFound("No overdue books found.");
+        }
         return Ok(overdueBooks);
     }
+
     [HttpGet("overdue/{loanId}")]
     public ActionResult<OverdueBook> GetOverdueBookById(int loanId)
     {
-        var overdueBooks = _bookRepository.GetOverdueBookById(loanId);
-        return Ok(overdueBooks);
+        var overdueBook = _bookRepository.GetOverdueBookById(loanId);
+        if (overdueBook == null)
+        {
+            return NotFound($"Overdue book with loan ID {loanId} not found.");
+        }
+        return Ok(overdueBook);
     }
 
     [HttpGet]
     public ActionResult<IEnumerable<Book>> GetAllBooks()
     {
         var books = _bookRepository.GetAllBooks();
+        if (books == null || !books.Any())
+        {
+            return NotFound("No books found in the library.");
+        }
         return Ok(books);
     }
 
     [HttpPut("overdue/{loanId}")]
     public IActionResult EditOverdueBook(int loanId, [FromBody] OverdueBookUpdateDto updateDto)
     {
+        if (updateDto == null)
+        {
+            return BadRequest("Invalid data.");
+        }
+
         var result = _bookRepository.EditOverdueBook(loanId, updateDto.newEndDate, updateDto.status);
 
         if (!result)
         {
-            return NotFound();
+            return NotFound($"Overdue book with loanId {loanId} not found.");
         }
 
         return Ok("Overdue book updated successfully.");
     }
+
 
     [HttpPost("book")]
     public IActionResult UploadNewBook([FromBody] BookDto newBook)
@@ -108,11 +131,12 @@ public class BooksController : ControllerBase
 
         if (!result)
         {
-            return NotFound("Book not found.");
+            return NotFound($"Book with ID {bookId} not found.");
         }
 
-        return NoContent(); 
+        return Ok($"Book with ID {bookId} deleted successfully.");
     }
+
 
 
 

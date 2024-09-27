@@ -15,6 +15,11 @@ namespace LibraryManagement.Controllers
         {
             var loansDataList = DataGenerator.GenerateRandomLoanData(2022, 2024);
 
+            if (loansDataList == null || loansDataList.Count == 0)
+            {
+                return NotFound("No loan data found.");
+            }
+
             return Ok(loansDataList);
         }
     }

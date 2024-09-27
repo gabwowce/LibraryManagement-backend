@@ -245,10 +245,7 @@ namespace LibraryManagement.Repositories
                                 DaysOverdue = daysOverdue > 0 ? daysOverdue : 0
                             };
                         }
-                        else
-                        {
-                            Log.Warning($"No overdue book found with LoanID: {loanId}");
-                        }
+                       
                     }
                 }
             }
@@ -425,29 +422,44 @@ namespace LibraryManagement.Repositories
 
         public bool DeleteBookById(int bookId)
         {
-            // Proceed with deletion
-            using var connection = new MySqlConnection(_connectionString);
-            connection.Open();
+            try
+            {
+               
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
 
-            using var command = new MySqlCommand("DELETE FROM Books WHERE BookID = @bookId;", connection);
-            command.Parameters.AddWithValue("@bookId", bookId);
+                using var command = new MySqlCommand("DELETE FROM Books WHERE BookID = @bookId;", connection);
+                command.Parameters.AddWithValue("@bookId", bookId);
 
-            int rowsAffected = command.ExecuteNonQuery();
-            return rowsAffected > 0;
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+            catch (MySqlException ex)
+            {
+               
+                throw new InvalidOperationException($"An error occurred while deleting book id: {bookId}.", ex);
+            }
         }
 
 
 
         public bool HasActiveLoans(int bookId)
         {
-            using var connection = new MySqlConnection(_connectionString);
-            connection.Open();
+            try
+            {
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
 
-            using var command = new MySqlCommand("SELECT COUNT(*) FROM Loans WHERE BookID = @bookId", connection);
-            command.Parameters.AddWithValue("@bookId", bookId);
+                using var command = new MySqlCommand("SELECT COUNT(*) FROM Loans WHERE BookID = @bookId", connection);
+                command.Parameters.AddWithValue("@bookId", bookId);
 
-            int count = Convert.ToInt32(command.ExecuteScalar());
-            return count == 0;
+                int count = Convert.ToInt32(command.ExecuteScalar());
+                return count == 0;
+            }
+            catch (MySqlException ex)
+            {
+                throw new InvalidOperationException("An error occurred while checking active loans.", ex);
+            }
         }
 
 
